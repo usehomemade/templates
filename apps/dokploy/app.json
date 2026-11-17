@@ -1,0 +1,28 @@
+{
+  "name": "Dokploy",
+  "upstream": "Dokploy/dokploy",
+  "track": "release",
+  "branch": "canary",
+  "license": "Apache-2.0",
+  "homepage": "https://dokploy.com",
+  "description": "Self-hostable PaaS for deploying apps and databases (Next.js dashboard, Docker Swarm and Traefik).",
+  "config": {
+    "size": "small",
+    "install": [
+      "mise use node@24 && npm i -g node-gyp && pnpm install --frozen-lockfile",
+      "set -a; . /etc/homemade/env; set +a; rest=${HOMEMADE_URL#https://}; rest=${rest#\"$HOMEMADE_PROJECT-$HOMEMADE_VM_NAME\"}; rest=${rest%.$HOMEMADE_VM_DOMAIN}; [ -f apps/dokploy/.env ] || { cp apps/dokploy/.env.example apps/dokploy/.env; printf 'BETTER_AUTH_URL=https://%s-%s-3000%s.%s\\nBETTER_AUTH_SECRET=%s\\n' \"$HOMEMADE_PROJECT\" \"$HOMEMADE_VM_NAME\" \"$rest\" \"$HOMEMADE_VM_DOMAIN\" \"$(openssl rand -hex 32)\" >> apps/dokploy/.env; }; grep -q allowedDevOrigins apps/dokploy/next.config.mjs || sed -i 's|reactStrictMode: true,|reactStrictMode: true,\\n\\tallowedDevOrigins: [\"*.onhmmd.com\", \"*.onhomemade.com\"],|' apps/dokploy/next.config.mjs",
+      "docker swarm init --advertise-addr \"$(hostname -I | cut -d' ' -f1)\" >/dev/null 2>&1 || true; docker start dokploy-postgres >/dev/null 2>&1 || docker run -d --restart unless-stopped --name dokploy-postgres -p 5432:5432 -e POSTGRES_USER=dokploy -e POSTGRES_DB=dokploy -e POSTGRES_PASSWORD=amukds4wi9001583845717ad2 -v dokploy-postgres:/var/lib/postgresql/data postgres:16 >/dev/null; until docker exec dokploy-postgres pg_isready -U dokploy -h 127.0.0.1 >/dev/null 2>&1; do sleep 1; done; sleep 3",
+      "pnpm --filter=dokploy run migration:run && pnpm run server:script"
+    ],
+    "services": {
+      "web": {
+        "displayName": "Dokploy",
+        "cmd": "exec pnpm run dokploy:dev",
+        "port": 3000,
+        "url": true,
+        "share": "owner",
+        "healthcheck": { "path": "/register" }
+      }
+    }
+  }
+}
