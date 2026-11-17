@@ -8,6 +8,8 @@ docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e GEM_HOME=/tmp/gems -e
 # Any Host in development (the VM URL); Postgres and Redis from env with the VM defaults.
 insert_after "Rails.application.configure do" '  config.hosts.clear' config/environments/development.rb
 insert_after "Rails.application.routes.draw do" '  root "pages#home"' config/routes.rb
-perl -0pi -e 's/(development:\n  <<: \*default\n)/$1  url: <%= ENV.fetch("DATABASE_URL", "postgresql:\/\/postgres:postgres\@127.0.0.1:54329\/app") %>\n/' config/database.yml
-must_contain 'DATABASE_URL' config/database.yml
+# Dev and test databases on the VM's Postgres container (54329), as plain keys so every task
+# (db:prepare also touches test) connects over TCP, never a local socket.
+perl -0pi -e 's/(\n(development|test):\n  <<: \*default\n)/$1  host: 127.0.0.1\n  port: 54329\n  username: postgres\n  password: postgres\n/g' config/database.yml
+must_contain 'port: 54329' config/database.yml
 grep -qx '/vendor/bundle' .gitignore || printf '/vendor/bundle\n' >>.gitignore

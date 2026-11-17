@@ -17,10 +17,12 @@
     },
     "web": {
       "displayName": "Web",
-      "cmd": "timeout 240 bash -c 'until (: </dev/tcp/127.0.0.1/33069) 2>/dev/null; do sleep 1; done' && docker rm -f hm-laravel >/dev/null 2>&1; exec docker run --rm --name hm-laravel --network host --user $(id -u):$(id -g) -e PORT=${PORT:-8000} -v $PWD:/app -w /app hm-php bash -c 'php artisan migrate --force && exec php artisan serve --host=0.0.0.0 --port=$PORT'",
+      "cmd": "timeout 300 bash -c 'until docker exec hm-mysql mysql -h127.0.0.1 -uroot -proot -e \"select 1\" app >/dev/null 2>&1; do sleep 2; done' && docker rm -f hm-laravel >/dev/null 2>&1; exec docker run --rm --name hm-laravel --network host --user $(id -u):$(id -g) -e PORT=${PORT:-8000} -v $PWD:/app -w /app hm-php bash -c 'php artisan migrate --force && exec php artisan serve --host=0.0.0.0 --port=$PORT'",
       "port": 8000,
       "url": true,
-      "healthcheck": { "path": "/" }
+      "healthcheck": {
+        "path": "/"
+      }
     }
   }
 }

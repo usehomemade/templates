@@ -1,5 +1,5 @@
 uv init --app --no-package --name app --vcs none --author-from none .
-uv add django "psycopg[binary]" celery redis dj-database-url "watchdog[watchmedo]"
+uv add django "psycopg[binary]" celery redis packaging dj-database-url "watchdog[watchmedo]"
 uv run django-admin startproject config .
 uv run python manage.py startapp core
 rm -f main.py
