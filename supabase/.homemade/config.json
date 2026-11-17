@@ -1,8 +1,13 @@
 {
   "$schema": "https://homemade.dev/schemas/latest/config.json",
   "size": "small",
-  "warmup": ["pnpm install --frozen-lockfile", "pnpm exec supabase start && pnpm exec supabase stop"],
-  "install": ["pnpm install --frozen-lockfile"],
+  "warmup": [
+    "pnpm install --frozen-lockfile",
+    "pnpm exec supabase start && pnpm exec supabase stop"
+  ],
+  "install": [
+    "pnpm install --frozen-lockfile"
+  ],
   "services": {
     "supabase": {
       "displayName": "Supabase",
@@ -16,10 +21,12 @@
     },
     "web": {
       "displayName": "Web",
-      "cmd": "timeout 600 sh -c 'until pnpm exec supabase status >/dev/null 2>&1; do sleep 2; done' && eval \"$(pnpm exec supabase status -o env --override-name api.url=SUPABASE_URL --override-name auth.anon_key=SUPABASE_ANON_KEY | sed 's/^/export /')\" && exec pnpm dev --hostname 0.0.0.0 --port ${PORT:-3000}",
+      "cmd": "timeout 600 sh -c 'until pnpm exec supabase status >/dev/null 2>&1; do sleep 2; done' && eval \"$(pnpm exec supabase status -o env | grep -E '^[A-Z_]+=')\" && SUPABASE_URL=\"$API_URL\" SUPABASE_ANON_KEY=\"${PUBLISHABLE_KEY:-$ANON_KEY}\" exec pnpm dev --hostname 0.0.0.0 --port ${PORT:-3000}",
       "port": 3000,
       "url": true,
-      "healthcheck": { "path": "/" }
+      "healthcheck": {
+        "path": "/"
+      }
     }
   }
 }

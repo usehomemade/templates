@@ -1,9 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
-
-export const dynamic = "force-dynamic";
+import { connection } from "next/server";
 
 // Reads the todos table from the VM's local Supabase (see .homemade/config.json).
 export default async function Home() {
+  // Render per request: the rows live in the database, not in the build.
+  await connection();
   const supabase = createClient(process.env.SUPABASE_URL ?? "", process.env.SUPABASE_ANON_KEY ?? "");
   const { data, error } = await supabase.from("todos").select("id, title, done").order("id");
   return (
