@@ -40,13 +40,14 @@ jobs:
           git config --global user.name "homemade templates"
           git config --global user.email "templates@homemade.dev"
           for id in $(cat scripts/templates.txt); do ./scripts/generate.sh "$id"; done
+          # Stage now: the smoke check leaves files behind (db.sqlite3, builds) that must not be committed.
+          git add -A
 
       - name: Smoke check
         run: for id in $(cat scripts/templates.txt); do ./scripts/smoke.sh "$id"; done
 
       - name: Commit
         run: |
-          git add -A
           if git diff --cached --quiet; then
             echo "No changes."
             exit 0

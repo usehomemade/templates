@@ -67,6 +67,9 @@ case "$id" in
     # Any host: the VM's URL changes per VM. Forms posted from it pass CSRF.
     sed -i.bak 's/^ALLOWED_HOSTS = \[\]$/ALLOWED_HOSTS = ["*"]/' config/settings.py && rm config/settings.py.bak
     grep -q 'ALLOWED_HOSTS = \["\*"\]' config/settings.py || { echo "generate: ALLOWED_HOSTS not patched" >&2; exit 1; }
+    # A fixed dev key (startproject writes a new random one each run); real deploys set DJANGO_SECRET_KEY.
+    perl -0pi -e 's/^SECRET_KEY = .*$/SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-homemade-template-dev-only")/m; s/^from pathlib import Path$/import os\nfrom pathlib import Path/m' config/settings.py
+    grep -q 'DJANGO_SECRET_KEY' config/settings.py || { echo "generate: SECRET_KEY not patched" >&2; exit 1; }
     printf '\nCSRF_TRUSTED_ORIGINS = ["https://*.onhomemade.com", "https://*.onhmmd.com"]\n' >>config/settings.py
     uv lock
     write_config "uv sync --frozen" web 'uv run manage.py runserver 0.0.0.0:${PORT:-8000}' 8000
