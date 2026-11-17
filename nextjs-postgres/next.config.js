@@ -5,7 +5,8 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
   allowedDevOrigins: ["*.onhomemade.com", "*.onhmmd.com"],
+};
 
 export default config;

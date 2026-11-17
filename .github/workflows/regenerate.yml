@@ -1,5 +1,6 @@
-# Rebuilds every template from its create command once a week, checks that it
-# installs, builds and answers on $PORT, and commits only when all of them pass.
+# Rebuilds every template from its create command once a week, smoke-checks each
+# one in its own job (install from the lockfile, start every service the way a
+# homemade VM does, check it answers), and commits only when all of them pass.
 name: Regenerate templates
 
 on:
@@ -20,43 +21,66 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  regenerate:
+  generate:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
+    outputs:
+      ids: ${{ steps.ids.outputs.ids }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-      - uses: pnpm/action-setup@v4
-        with:
-          version: latest
-      - uses: oven-sh/setup-bun@v2
-      - uses: astral-sh/setup-uv@v6
-      - uses: actions/setup-go@v5
-        with:
-          go-version: stable
-          cache: false
-
+      - uses: ./.github/actions/tools
+      - id: ids
+        env:
+          ONLY: ${{ inputs.only }}
+        run: |
+          ids="${ONLY:-$(grep -v '^#' scripts/templates.txt)}"
+          echo "ids=$(printf '%s\n' $ids | jq -R . | jq -sc .)" >>"$GITHUB_OUTPUT"
+          echo "IDS=$(echo $ids)" >>"$GITHUB_ENV"
       - name: Regenerate
         env:
           CI: "1"
-          ONLY: ${{ inputs.only }}
         run: |
           git config --global user.name "homemade templates"
           git config --global user.email "templates@homemade.dev"
-          ids="${ONLY:-$(cat scripts/templates.txt)}"
-          echo "IDS=$(echo $ids)" >>"$GITHUB_ENV"
-          for id in $ids; do ./scripts/generate.sh "$id"; done
-          # Stage now: the smoke check leaves files behind (db.sqlite3, builds) that must not be committed.
-          git add -A
+          for id in $IDS; do ./scripts/generate.sh "$id"; done
+          tar -czf generated.tgz $IDS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: generated
+          path: generated.tgz
+          retention-days: 3
 
-      - name: Smoke check
-        timeout-minutes: 45
-        run: for id in $IDS; do ./scripts/smoke.sh "$id"; done
+  smoke:
+    needs: generate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        id: ${{ fromJSON(needs.generate.outputs.ids) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/tools
+      - uses: actions/download-artifact@v4
+        with:
+          name: generated
+      - run: rm -rf "${{ matrix.id }}" && tar -xzf generated.tgz "${{ matrix.id }}"
+      - run: ./scripts/smoke.sh "${{ matrix.id }}"
 
+  commit:
+    needs: [generate, smoke]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: generated
       - name: Commit
+        env:
+          IDS: ${{ join(fromJSON(needs.generate.outputs.ids), ' ') }}
         run: |
+          rm -rf $IDS && tar -xzf generated.tgz && rm generated.tgz
+          git add -A $IDS
           if git diff --cached --quiet; then
             echo "No changes."
             exit 0
