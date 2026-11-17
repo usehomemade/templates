@@ -10,7 +10,7 @@
     "size": "medium",
     "install": [
       "sudo mkdir -p /data/coolify/image-scans && sudo chown \"$USER\": /data/coolify/image-scans",
-      "set -a; . /etc/homemade/env; set +a; rest=${HOMEMADE_URL#https://}; rest=${rest#\"$HOMEMADE_PROJECT-$HOMEMADE_VM_NAME\"}; rest=${rest%.$HOMEMADE_VM_DOMAIN}; pv() { echo \"$HOMEMADE_PROJECT-$HOMEMADE_VM_NAME-$1$rest.$HOMEMADE_VM_DOMAIN\"; }; [ -f .env ] || { cp .env.development.example .env; sed -i \"s|^APP_KEY=.*|APP_KEY=base64:$(openssl rand -base64 32)|; s|^APP_URL=.*|APP_URL=https://$(pv 8000)|; s|^VITE_HOST=.*|VITE_HOST=$(pv 5173)|\" .env; printf 'VITE_PROTOCOL=https\\nPUSHER_PORT=443\\nPUSHER_SCHEME=https\\n' >> .env; }; sed -i 's|clientPort: vitePort|clientPort: 443|; s|origin: `${viteProtocol}://${viteHost}:${vitePort}`|origin: `${viteProtocol}://${viteHost}`|' vite.config.js",
+      "set -a; . /etc/homemade/env; set +a; host=${HOMEMADE_URL#https://}; pv() { echo \"${host/-$HOMEMADE_VM_NAME-/-$HOMEMADE_VM_NAME-$1-}\"; }; [ -f .env ] || { cp .env.development.example .env; sed -i \"s|^APP_KEY=.*|APP_KEY=base64:$(openssl rand -base64 32)|; s|^APP_URL=.*|APP_URL=https://$(pv 8000)|; s|^VITE_HOST=.*|VITE_HOST=$(pv 5173)|\" .env; printf 'VITE_PROTOCOL=https\\nPUSHER_PORT=443\\nPUSHER_SCHEME=https\\n' >> .env; }; sed -i 's|clientPort: vitePort|clientPort: 443|; s|origin: `${viteProtocol}://${viteHost}:${vitePort}`|origin: `${viteProtocol}://${viteHost}`|' vite.config.js",
       "docker compose -p coolify -f docker-compose.yml -f docker-compose.dev.yml build && docker compose -p coolify -f docker-compose.yml -f docker-compose.dev.yml pull --ignore-buildable"
     ],
     "services": {
@@ -20,9 +20,15 @@
         "port": 8000,
         "url": true,
         "share": "owner",
-        "healthcheck": { "path": "/login" }
+        "healthcheck": {
+          "path": "/login"
+        }
       },
-      "vite": { "displayName": "Vite (assets, live reload)", "port": 5173, "url": true }
+      "vite": {
+        "displayName": "Vite (assets, live reload)",
+        "port": 5173,
+        "url": true
+      }
     }
   }
 }
