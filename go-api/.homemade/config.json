@@ -1,7 +1,13 @@
 {
   "$schema": "https://homemade.dev/schemas/latest/config.json",
-  "install": ["go mod download"],
+  "install": [
+    "go mod download"
+  ],
   "services": {
-    "api": { "cmd": "go run .", "port": 8080, "url": true }
+    "api": {
+      "cmd": "go tool air",
+      "port": 8080,
+      "url": true
+    }
   }
 }

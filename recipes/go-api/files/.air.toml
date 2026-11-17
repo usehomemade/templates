@@ -1,0 +1,6 @@
+# Rebuild and restart on save. The server reads $PORT.
+[build]
+  cmd = "go build -o ./tmp/main ."
+  bin = "./tmp/main"
+  include_ext = ["go", "html", "tmpl"]
+  exclude_dir = ["tmp", "vendor"]

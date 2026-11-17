@@ -4,3 +4,4 @@ astro
 django
 go-api
 bun-hono
+nextjs-postgres

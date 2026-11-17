@@ -1,0 +1,7 @@
+{
+  "$schema": "https://homemade.dev/schemas/latest/config.json",
+  "install": ["bun install --frozen-lockfile"],
+  "services": {
+    "api": { "cmd": "PORT=${PORT:-3000} bun run --hot src/index.ts", "port": 3000, "url": true }
+  }
+}
