@@ -81,6 +81,8 @@ jobs:
         run: |
           rm -rf $IDS && tar -xzf generated.tgz && rm generated.tgz
           git add -A $IDS
+          # Dev-only .env files are part of a template, even where the app's .gitignore skips them.
+          for id in $IDS; do if [ -f "$id/.env" ]; then git add -f "$id/.env"; fi; done
           if git diff --cached --quiet; then
             echo "No changes."
             exit 0
