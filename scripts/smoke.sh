@@ -52,6 +52,7 @@ for port in $(jq -r '.services[] | select(.url == true) | .port' "$config"); do
   while [ "$SECONDS" -lt "$deadline" ]; do
     code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 -H "Host: smoke.onhmmd.com" "http://127.0.0.1:$port$path" || true)"
     if [ "$code" != 000 ] && [ "$code" -lt 400 ]; then break; fi
+    [ $((SECONDS % 30)) -lt 3 ] && echo "smoke $id: waiting for :$port$path (last $code, ${SECONDS}s)"
     sleep 2
   done
   if [ "$code" = 000 ] || [ "$code" -ge 400 ]; then

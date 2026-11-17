@@ -1,0 +1,22 @@
+{
+  "$schema": "https://homemade.dev/schemas/latest/config.json",
+  "warmup": [
+    "docker pull ollama/ollama:latest",
+    "docker pull ghcr.io/open-webui/open-webui:main",
+    "docker run -d --name hm-ollama-warm -v hm-ollama:/root/.ollama ollama/ollama:latest && timeout 120 sh -c 'until docker exec hm-ollama-warm ollama list >/dev/null 2>&1; do sleep 1; done' && docker exec hm-ollama-warm ollama pull qwen2.5:0.5b; status=$?; docker rm -f hm-ollama-warm >/dev/null; exit $status"
+  ],
+  "services": {
+    "ollama": {
+      "displayName": "Ollama",
+      "cmd": "docker start -a hm-ollama || docker run --name hm-ollama -p 11434:11434 -v hm-ollama:/root/.ollama ollama/ollama:latest",
+      "port": 11434
+    },
+    "webui": {
+      "displayName": "Open WebUI",
+      "cmd": "docker start -a hm-webui || docker run --name hm-webui --network host -e PORT=${PORT:-8080} -e OLLAMA_BASE_URL=http://127.0.0.1:11434 -e WEBUI_AUTH=False -v hm-webui:/app/backend/data ghcr.io/open-webui/open-webui:main",
+      "port": 8080,
+      "url": true,
+      "healthcheck": { "path": "/health" }
+    }
+  }
+}

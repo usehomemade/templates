@@ -1,0 +1,25 @@
+{
+  "$schema": "https://homemade.dev/schemas/latest/config.json",
+  "size": "small",
+  "warmup": ["pnpm install --frozen-lockfile", "pnpm exec supabase start && pnpm exec supabase stop"],
+  "install": ["pnpm install --frozen-lockfile"],
+  "services": {
+    "supabase": {
+      "displayName": "Supabase",
+      "cmd": "pnpm exec supabase start && exec docker logs -f --since 1s supabase_db_app",
+      "port": 54321
+    },
+    "studio": {
+      "displayName": "Supabase Studio",
+      "port": 54323,
+      "url": true
+    },
+    "web": {
+      "displayName": "Web",
+      "cmd": "timeout 600 sh -c 'until pnpm exec supabase status >/dev/null 2>&1; do sleep 2; done' && eval \"$(pnpm exec supabase status -o env --override-name api.url=SUPABASE_URL --override-name auth.anon_key=SUPABASE_ANON_KEY | sed 's/^/export /')\" && exec pnpm dev --hostname 0.0.0.0 --port ${PORT:-3000}",
+      "port": 3000,
+      "url": true,
+      "healthcheck": { "path": "/" }
+    }
+  }
+}

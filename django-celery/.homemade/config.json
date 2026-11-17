@@ -1,0 +1,28 @@
+{
+  "$schema": "https://homemade.dev/schemas/latest/config.json",
+  "warmup": ["uv sync --frozen", "docker pull postgres:17-alpine", "docker pull redis:8-alpine"],
+  "install": ["uv sync --frozen"],
+  "services": {
+    "db": {
+      "displayName": "Postgres",
+      "cmd": "docker start -a hm-postgres || docker run --name hm-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=app -p 54329:5432 postgres:17-alpine",
+      "port": 54329
+    },
+    "redis": {
+      "displayName": "Redis",
+      "cmd": "docker start -a hm-redis || docker run --name hm-redis -p 63799:6379 redis:8-alpine",
+      "port": 63799
+    },
+    "worker": {
+      "displayName": "Celery worker",
+      "cmd": "timeout 120 bash -c 'until (: </dev/tcp/127.0.0.1/63799) 2>/dev/null; do sleep 1; done' && exec uv run watchmedo auto-restart --directory=. --pattern='*.py' --recursive -- celery -A config worker --loglevel=info"
+    },
+    "web": {
+      "displayName": "Web",
+      "cmd": "timeout 180 sh -c 'until pg_isready -h 127.0.0.1 -p 54329 -q; do sleep 1; done' && uv run manage.py migrate --noinput && exec uv run manage.py runserver 0.0.0.0:${PORT:-8000}",
+      "port": 8000,
+      "url": true,
+      "healthcheck": { "path": "/" }
+    }
+  }
+}

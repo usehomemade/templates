@@ -52,6 +52,7 @@ jobs:
           git add -A
 
       - name: Smoke check
+        timeout-minutes: 45
         run: for id in $IDS; do ./scripts/smoke.sh "$id"; done
 
       - name: Commit

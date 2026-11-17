@@ -1,0 +1,37 @@
+{
+  "$schema": "https://homemade.dev/schemas/latest/config.json",
+  "warmup": [
+    "docker pull ruby:3.4",
+    "docker pull postgres:17-alpine",
+    "docker pull redis:8-alpine",
+    "docker run --rm --user $(id -u):$(id -g) -e HOME=/tmp -e BUNDLE_PATH=/app/vendor/bundle -v $PWD:/app -w /app ruby:3.4 bundle install"
+  ],
+  "install": [
+    "docker run --rm --user $(id -u):$(id -g) -e HOME=/tmp -e BUNDLE_PATH=/app/vendor/bundle -v $PWD:/app -w /app ruby:3.4 bundle install"
+  ],
+  "services": {
+    "db": {
+      "displayName": "Postgres",
+      "cmd": "docker start -a hm-postgres || docker run --name hm-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=app -p 54329:5432 postgres:17-alpine",
+      "port": 54329
+    },
+    "redis": {
+      "displayName": "Redis",
+      "cmd": "docker start -a hm-redis || docker run --name hm-redis -p 63799:6379 redis:8-alpine",
+      "port": 63799
+    },
+    "sidekiq": {
+      "displayName": "Sidekiq",
+      "cmd": "timeout 180 sh -c 'until pg_isready -h 127.0.0.1 -p 54329 -q; do sleep 1; done' && docker rm -f hm-sidekiq >/dev/null 2>&1; exec docker run --rm --name hm-sidekiq --network host --user $(id -u):$(id -g) -e HOME=/tmp -e BUNDLE_PATH=/app/vendor/bundle -v $PWD:/app -w /app ruby:3.4 bundle exec sidekiq"
+    },
+    "web": {
+      "displayName": "Web",
+      "cmd": "timeout 180 sh -c 'until pg_isready -h 127.0.0.1 -p 54329 -q; do sleep 1; done' && docker rm -f hm-rails >/dev/null 2>&1; exec docker run --rm --name hm-rails --network host --user $(id -u):$(id -g) -e HOME=/tmp -e BUNDLE_PATH=/app/vendor/bundle -e PORT=${PORT:-3000} -v $PWD:/app -w /app ruby:3.4 bash -c 'bin/rails db:prepare && exec bin/rails server -b 0.0.0.0 -p $PORT'",
+      "port": 3000,
+      "url": true,
+      "healthcheck": {
+        "path": "/"
+      }
+    }
+  }
+}

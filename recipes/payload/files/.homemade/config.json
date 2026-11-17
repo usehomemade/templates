@@ -1,0 +1,19 @@
+{
+  "$schema": "https://homemade.dev/schemas/latest/config.json",
+  "warmup": ["pnpm install --frozen-lockfile", "docker pull postgres:17-alpine"],
+  "install": ["pnpm install --frozen-lockfile"],
+  "services": {
+    "db": {
+      "displayName": "Postgres",
+      "cmd": "docker start -a hm-postgres || docker run --name hm-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=app -p 54329:5432 postgres:17-alpine",
+      "port": 54329
+    },
+    "web": {
+      "displayName": "Payload",
+      "cmd": "timeout 180 sh -c 'until pg_isready -h 127.0.0.1 -p 54329 -q; do sleep 1; done' && exec pnpm dev --hostname 0.0.0.0 --port ${PORT:-3000}",
+      "port": 3000,
+      "url": true,
+      "healthcheck": { "path": "/" }
+    }
+  }
+}

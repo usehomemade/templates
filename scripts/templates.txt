@@ -5,3 +5,10 @@ django
 go-api
 bun-hono
 nextjs-postgres
+django-celery
+rails
+laravel-mysql
+phoenix
+payload
+supabase
+open-webui
