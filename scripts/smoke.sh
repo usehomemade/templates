@@ -36,7 +36,28 @@ run_list install
 
 if command -v setsid >/dev/null; then spawn=(setsid bash); else spawn=(bash); fi
 # Unit separator, not tab: read collapses empty tab fields, so a service with no port lost its cmd.
+# depends_on like the VM: a service waits until each dependency is healthy (its healthcheck cmd
+# exits 0, or its port accepts connections), or only started; 300 s cap, then it starts anyway.
+wait_for_deps() {
+  local name=$1 dep cond hc dport until=$((SECONDS + 300))
+  while IFS=$'\x1f' read -r dep cond; do
+    [ -z "$dep" ] && continue
+    [ "$cond" = started ] && continue
+    hc="$(jq -r --arg d "$dep" '.services[$d].healthcheck.cmd // ""' "$config")"
+    dport="$(jq -r --arg d "$dep" '.services[$d].port // ""' "$config")"
+    echo "smoke $id: $name waits for $dep"
+    while [ "$SECONDS" -lt "$until" ]; do
+      if [ -n "$hc" ]; then bash -c "$hc" >/dev/null 2>&1 && break
+      elif [ -n "$dport" ]; then (: </dev/tcp/127.0.0.1/"$dport") 2>/dev/null && break
+      else break; fi
+      sleep 1
+    done
+  done < <(jq -r --arg n "$name" '.services[$n].depends_on // {} | to_entries[] | [.key, (.value.condition // "healthy")] | join("\u001f")' "$config")
+}
+
+# Services without depends_on first, so a dependency is already starting when its dependent waits.
 while IFS=$'\x1f' read -r name port cmd; do
+  wait_for_deps "$name"
   echo "smoke $id: start $name on ${port:-no port}"
   if [ -n "$port" ]; then
     # The VM types "PORT=<port> <cmd>" into a shell, so run it the same way.
@@ -45,7 +66,7 @@ while IFS=$'\x1f' read -r name port cmd; do
     "${spawn[@]}" -c "$cmd" >"$logs/$name.log" 2>&1 &
   fi
   pids+=($!)
-done < <(jq -r '.services | to_entries[] | select(.value.cmd != null) | [.key, (.value.port // "" | tostring), .value.cmd] | join("\u001f")' "$config")
+done < <(jq -r '.services | to_entries | sort_by(.value.depends_on != null) | .[] | select(.value.cmd != null) | [.key, (.value.port // "" | tostring), .value.cmd] | join("\u001f")' "$config")
 
 deadline=$((SECONDS + timeout_s))
 for port in $(jq -r '.services[] | select(.url == true) | .port' "$config"); do
