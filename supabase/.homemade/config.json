@@ -12,20 +12,31 @@
     "supabase": {
       "displayName": "Supabase",
       "cmd": "pnpm exec supabase start && exec docker logs -f --since 1s supabase_db_app",
-      "port": 54321
+      "port": 54321,
+      "healthcheck": {
+        "cmd": "pnpm exec supabase status >/dev/null 2>&1"
+      }
     },
     "studio": {
       "displayName": "Supabase Studio",
       "port": 54323,
-      "url": true
+      "url": true,
+      "healthcheck": {
+        "path": "/"
+      }
     },
     "web": {
       "displayName": "Web",
-      "cmd": ": wait for Supabase, then start Next.js with its URL and key; until out=$(pnpm exec supabase status -o env 2>/dev/null) && printf '%s\\n' \"$out\" | grep -q '^API_URL=\"http'; do sleep 2; done; v() { printf '%s\\n' \"$out\" | sed -n \"s/^$1=\\\"\\\\(.*\\\\)\\\"$/\\\\1/p\" | head -n1; }; SUPABASE_URL=$(v API_URL); SUPABASE_ANON_KEY=$(v PUBLISHABLE_KEY); [ -n \"$SUPABASE_ANON_KEY\" ] || SUPABASE_ANON_KEY=$(v ANON_KEY); export SUPABASE_URL SUPABASE_ANON_KEY; exec pnpm dev --hostname 0.0.0.0 --port ${PORT:-3000}",
+      "cmd": ": start Next.js with Supabase's URL and key; out=$(pnpm exec supabase status -o env) || exit 1; v() { printf '%s\\n' \"$out\" | sed -n \"s/^$1=\\\"\\\\(.*\\\\)\\\"$/\\\\1/p\" | head -n1; }; SUPABASE_URL=$(v API_URL); SUPABASE_ANON_KEY=$(v PUBLISHABLE_KEY); [ -n \"$SUPABASE_ANON_KEY\" ] || SUPABASE_ANON_KEY=$(v ANON_KEY); export SUPABASE_URL SUPABASE_ANON_KEY; exec pnpm dev --hostname 0.0.0.0 --port ${PORT:-3000}",
       "port": 3000,
       "url": true,
       "healthcheck": {
         "path": "/"
+      },
+      "depends_on": {
+        "supabase": {
+          "condition": "healthy"
+        }
       }
     }
   }

@@ -12,14 +12,24 @@
     "db": {
       "displayName": "Postgres",
       "cmd": "docker start -a hm-postgres || docker run --name hm-postgres -e POSTGRES_PASSWORD=postgres -p 54329:5432 postgres:17-alpine",
-      "port": 54329
+      "port": 54329,
+      "healthcheck": {
+        "cmd": "docker exec hm-postgres pg_isready -U postgres -h 127.0.0.1 -q"
+      }
     },
     "web": {
       "displayName": "Web",
-      "cmd": "timeout 180 sh -c 'until pg_isready -h 127.0.0.1 -p 54329 -q; do sleep 1; done' && docker rm -f hm-phoenix >/dev/null 2>&1; exec docker run --rm --name hm-phoenix --network host --user $(id -u):$(id -g) -e HOME=/tmp -e MIX_HOME=/app/.mix -e HEX_HOME=/app/.hex -e PORT=${PORT:-4000} -v $PWD:/app -w /app elixir:1.18 bash -c 'mix ecto.create && mix ecto.migrate && exec mix phx.server'",
+      "cmd": "docker rm -f hm-phoenix >/dev/null 2>&1; exec docker run --rm --name hm-phoenix --network host --user $(id -u):$(id -g) -e HOME=/tmp -e MIX_HOME=/app/.mix -e HEX_HOME=/app/.hex -e PORT=${PORT:-4000} -v $PWD:/app -w /app elixir:1.18 bash -c 'mix ecto.create && mix ecto.migrate && exec mix phx.server'",
       "port": 4000,
       "url": true,
-      "healthcheck": { "path": "/" }
+      "healthcheck": {
+        "path": "/"
+      },
+      "depends_on": {
+        "db": {
+          "condition": "healthy"
+        }
+      }
     }
   }
 }

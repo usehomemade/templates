@@ -1,24 +1,43 @@
 {
   "$schema": "https://homemade.dev/schemas/latest/config.json",
-  "warmup": ["pnpm install --frozen-lockfile", "docker pull postgres:17-alpine", "docker pull redis:8-alpine"],
-  "install": ["pnpm install --frozen-lockfile"],
+  "warmup": [
+    "pnpm install --frozen-lockfile",
+    "docker pull postgres:17-alpine",
+    "docker pull redis:8-alpine"
+  ],
+  "install": [
+    "pnpm install --frozen-lockfile"
+  ],
   "services": {
     "db": {
       "displayName": "Postgres",
       "cmd": "docker start -a hm-postgres || docker run --name hm-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=app -p 54329:5432 postgres:17-alpine",
-      "port": 54329
+      "port": 54329,
+      "healthcheck": {
+        "cmd": "docker exec hm-postgres pg_isready -U postgres -h 127.0.0.1 -q"
+      }
     },
     "redis": {
       "displayName": "Redis",
       "cmd": "docker start -a hm-redis || docker run --name hm-redis -p 63799:6379 redis:8-alpine",
-      "port": 63799
+      "port": 63799,
+      "healthcheck": {
+        "cmd": "docker exec hm-redis redis-cli ping"
+      }
     },
     "web": {
       "displayName": "Web",
-      "cmd": "timeout 180 sh -c 'until pg_isready -h 127.0.0.1 -p 54329 -q; do sleep 1; done' && pnpm db:push --force && exec pnpm dev --hostname 0.0.0.0 --port ${PORT:-3000}",
+      "cmd": "pnpm db:push --force && exec pnpm dev --hostname 0.0.0.0 --port ${PORT:-3000}",
       "port": 3000,
       "url": true,
-      "healthcheck": { "path": "/" }
+      "healthcheck": {
+        "path": "/"
+      },
+      "depends_on": {
+        "db": {
+          "condition": "healthy"
+        }
+      }
     }
   }
 }
