@@ -6,6 +6,7 @@
     "docker run --rm --user $(id -u):$(id -g) -e COMPOSER_HOME=/tmp/composer -v $PWD:/app -w /app hm-php composer install --no-interaction"
   ],
   "install": [
+    "docker image inspect hm-php >/dev/null 2>&1 || docker build -q -t hm-php -f .homemade/php.Dockerfile .homemade",
     "docker run --rm --user $(id -u):$(id -g) -e COMPOSER_HOME=/tmp/composer -v $PWD:/app -w /app hm-php composer install --no-interaction"
   ],
   "services": {
