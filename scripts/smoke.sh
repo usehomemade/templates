@@ -2,7 +2,7 @@
 # Smoke-checks one template folder the way a homemade VM runs it, from its
 # .homemade/config.json: every `warmup:` command, every `install:` command,
 # then every service with PORT set to its port. Passes when each service with
-# `url: true` answers below 400 (with a foreign Host header, as behind a VM URL).
+# `url: true` answers below 400 (with Host localhost:<port>, as the preview proxy sends it).
 # recipes/<id>/smoke.sh, when present, runs last with the services still up.
 #   scripts/smoke.sh <id>
 set -euo pipefail
@@ -52,7 +52,7 @@ for port in $(jq -r '.services[] | select(.url == true) | .port' "$config"); do
   path="$(jq -r --argjson p "$port" '.services[] | select(.port == $p) | .healthcheck.path // "/"' "$config")"
   code=000
   while [ "$SECONDS" -lt "$deadline" ]; do
-    code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 -H "Host: smoke.onhmmd.com" "http://127.0.0.1:$port$path" || true)"
+    code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 -H "Host: localhost:$port" "http://127.0.0.1:$port$path" || true)"
     if [ "$code" != 000 ] && [ "$code" -lt 400 ]; then break; fi
     [ $((SECONDS % 30)) -lt 3 ] && echo "smoke $id: waiting for :$port$path (last $code, ${SECONDS}s)"
     sleep 2

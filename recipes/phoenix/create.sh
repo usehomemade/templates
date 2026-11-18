@@ -6,9 +6,8 @@ docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e MIX_HOME=/tmp/mix -e 
   cd app && mix deps.get'
 shopt -s dotglob && mv app/* . && rmdir app && shopt -u dotglob
 rm -rf deps _build
-# Dev: Postgres on the VM port, listen on 0.0.0.0:$PORT, any origin for the live-reload socket.
-perl -0pi -e 's/hostname: "localhost"/hostname: "127.0.0.1",\n  port: 54329/; s/http: \[ip: \{127, 0, 0, 1\}, port: String.to_integer\(System.get_env\("PORT"\) \|\| "4000"\)\]/http: [ip: {0, 0, 0, 0}, port: String.to_integer(System.get_env("PORT") || "4000")]/; s/check_origin: false,/check_origin: false,/' config/dev.exs
+# Dev: Postgres on the VM port, listen on 0.0.0.0:$PORT.
+perl -0pi -e 's/hostname: "localhost"/hostname: "127.0.0.1",\n  port: 54329/; s/http: \[ip: \{127, 0, 0, 1\}, port: String.to_integer\(System.get_env\("PORT"\) \|\| "4000"\)\]/http: [ip: {0, 0, 0, 0}, port: String.to_integer(System.get_env("PORT") || "4000")]/' config/dev.exs
 must_contain 'port: 54329' config/dev.exs
 must_contain 'ip: {0, 0, 0, 0}' config/dev.exs
-must_contain 'check_origin: false' config/dev.exs
 printf '/.mix/\n/.hex/\n' >>.gitignore

@@ -23,7 +23,7 @@
       },
       "web": {
         "displayName": "CloudCLI",
-        "cmd": "__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.onhmmd.com,.onhomemade.com HOST=0.0.0.0 SERVER_PORT=3001 exec npx vite",
+        "cmd": "HOST=0.0.0.0 SERVER_PORT=3001 exec npx vite",
         "port": 5173,
         "url": true,
         "share": "owner",

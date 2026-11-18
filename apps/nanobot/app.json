@@ -30,7 +30,7 @@
     "services": {
       "web": {
         "displayName": "WebUI",
-        "cmd": "__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.onhmmd.com,.onhomemade.com exec .venv/bin/nanobot webui --dev --no-open --yes",
+        "cmd": "exec .venv/bin/nanobot webui --dev --no-open --yes",
         "port": 5173,
         "url": true,
         "share": "owner",

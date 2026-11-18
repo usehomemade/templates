@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-homemade-templ
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -124,8 +124,6 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
-
-CSRF_TRUSTED_ORIGINS = ["https://*.onhomemade.com", "https://*.onhmmd.com"]
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://127.0.0.1:63799/0")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://127.0.0.1:63799/1")

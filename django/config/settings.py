@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-homemade-templ
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -126,5 +126,3 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
-
-CSRF_TRUSTED_ORIGINS = ["https://*.onhomemade.com", "https://*.onhmmd.com"]

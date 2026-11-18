@@ -29,7 +29,6 @@
       "mise use node@24",
       "pnpm install --frozen-lockfile",
       "test -f apps/dokploy/.env || cp apps/dokploy/.env.example apps/dokploy/.env",
-      "grep -q allowedDevOrigins apps/dokploy/next.config.mjs || sed -i 's|reactStrictMode: true,|reactStrictMode: true,\\n\\tallowedDevOrigins: [\"*.onhmmd.com\", \"*.onhomemade.com\"],|' apps/dokploy/next.config.mjs",
       "docker swarm init --advertise-addr \"$(hostname -I | cut -d' ' -f1)\" || true",
       "cd apps/dokploy && npx tsx -r dotenv/config -e \"const s=await import('@dokploy/server/setup/setup');const t=await import('@dokploy/server/setup/traefik-setup');await s.initializeNetwork();t.createDefaultTraefikConfig();t.createDefaultServerTraefikConfig();await t.initializeStandaloneTraefik();process.exit(0)\""
     ],

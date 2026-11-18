@@ -4,7 +4,6 @@ rm -rf .git
 # A fixed dev secret (the CLI writes a random one each run).
 perl -pi -e 's/^PAYLOAD_SECRET=.*$/PAYLOAD_SECRET=homemade-template-dev-only-secret/' .env
 must_contain 'PAYLOAD_SECRET=homemade-template-dev-only-secret' .env
-insert_after "const nextConfig: NextConfig = {" '  allowedDevOrigins: ["*.onhomemade.com", "*.onhmmd.com"],' next.config.ts
 printf "allowBuilds:\n  esbuild: true\n  sharp: true\n  unrs-resolver: true\n" >pnpm-workspace.yaml
 # The template pins pnpm <= 11 and newer Node in "engines"; a VM runs whatever versions its host ships.
 jq 'del(.engines)' package.json >package.json.tmp && mv package.json.tmp package.json

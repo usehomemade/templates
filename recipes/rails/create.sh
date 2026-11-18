@@ -5,8 +5,6 @@ docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e GEM_HOME=/tmp/gems -e
     rails new . --database=postgresql --skip-git --skip-docker --skip-kamal --skip-thruster --skip-ci --skip-test --skip-system-test --skip-bundle --skip-jbuilder
     bundle add sidekiq --skip-install
     bundle lock'
-# Any Host in development (the VM URL); Postgres and Redis from env with the VM defaults.
-insert_after "Rails.application.configure do" '  config.hosts.clear' config/environments/development.rb
 insert_after "Rails.application.routes.draw do" '  root "pages#home"' config/routes.rb
 # Dev and test databases on the VM's Postgres container (54329), as plain keys so every task
 # (db:prepare also touches test) connects over TCP, never a local socket.

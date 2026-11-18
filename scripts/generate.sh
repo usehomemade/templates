@@ -25,14 +25,11 @@ insert_after() {
 }
 must_contain() { grep -qF -- "$1" "$2" || { echo "generate: '$1' missing in $2" >&2; exit 1; }; }
 
-# Django dev settings that work behind a VM URL: any host, CSRF for the workload domains,
-# a fixed dev key (startproject writes a random one each run; real deploys set DJANGO_SECRET_KEY).
+# Django dev settings: a fixed dev key (startproject writes a random one each run; real deploys set DJANGO_SECRET_KEY).
 django_dev_settings() {
   local f="$1"
-  perl -0pi -e 's/^ALLOWED_HOSTS = \[\]$/ALLOWED_HOSTS = ["*"]/m; s/^SECRET_KEY = .*$/SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-homemade-template-dev-only")/m; s/^from pathlib import Path$/import os\nfrom pathlib import Path/m' "$f"
-  must_contain 'ALLOWED_HOSTS = ["*"]' "$f"
+  perl -0pi -e 's/^SECRET_KEY = .*$/SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-homemade-template-dev-only")/m; s/^from pathlib import Path$/import os\nfrom pathlib import Path/m' "$f"
   must_contain DJANGO_SECRET_KEY "$f"
-  printf '\nCSRF_TRUSTED_ORIGINS = ["https://*.onhomemade.com", "https://*.onhmmd.com"]\n' >>"$f"
 }
 
 # shellcheck source=/dev/null
