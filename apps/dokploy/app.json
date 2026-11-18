@@ -60,7 +60,8 @@
         "displayName": "Deployed apps (Traefik)",
         "port": 80,
         "url": true,
-        "share": "owner"
+        "share": "owner",
+        "publicHost": true
       }
     }
   }
