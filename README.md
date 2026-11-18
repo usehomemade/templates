@@ -30,19 +30,19 @@ Every dev server listens on `0.0.0.0` and `$PORT` and accepts any host name, so 
 
 Each app keeps its own license; homemade is not affiliated with any of them. See `apps/<id>/app.json` for the exact setup.
 
-Apps are not copied here. `apps/<id>/app.json` holds only our setup and which upstream ref to track. When a VM is created, it clones the app's latest release tag (or default branch) straight from GitHub, installs it and runs it in dev mode.
+Apps are not copied here. `apps/<id>/app.json` holds only our config and which upstream ref to track. Each host's warm snapshot clones the app's latest release tag (or default branch) straight from GitHub and runs `warmup:` (dependency installs, builds, image pulls), so a new VM starts with them; a VM without a snapshot clones and installs itself. Then `install:` runs the quick per-boot steps and the services run the app in dev mode.
 
 | App | Upstream | License | Tracks | Notes |
 | --- | --- | --- | --- | --- |
 | `openclaw` | [openclaw/openclaw](https://github.com/openclaw/openclaw) | MIT | latest release | Medium VM. First boot builds the gateway (about 9 min). Control UI runs on Vite. No login; the URL is owner-only. |
-| `nanobot` | [HKUDS/nanobot](https://github.com/HKUDS/nanobot) | MIT | latest release | The VM page shows the sign-in link (`.homemade/sign-in-link.txt`). |
-| `t3code` | [pingdotgg/t3code](https://github.com/pingdotgg/t3code) | MIT | latest release | The VM page shows the pairing link (`.homemade/sign-in-link.txt`). |
-| `opencode` | [anomalyco/opencode](https://github.com/anomalyco/opencode) | MIT | latest release | Web app on Vite, API on 4096. |
+| `nanobot` | [HKUDS/nanobot](https://github.com/HKUDS/nanobot) | MIT | latest release | The VM page shows the sign-in link. |
+| `t3code` | [pingdotgg/t3code](https://github.com/pingdotgg/t3code) | MIT | latest release | The VM page shows the pairing link. |
+| `opencode` | [anomalyco/opencode](https://github.com/anomalyco/opencode) | MIT | latest release | The OpenCode server (from source) on 4096 serves the web app. |
 | `cloudcli` | [siteboon/claudecodeui](https://github.com/siteboon/claudecodeui) | AGPL-3.0-or-later | latest release | Web UI for Claude Code, Cursor CLI and Codex. |
 | `coolify` | [coollabsio/coolify](https://github.com/coollabsio/coolify) | Apache-2.0 | latest release | Medium VM, upstream dev compose. Sign in as `test@example.com` / `password`. |
-| `dokploy` | [Dokploy/dokploy](https://github.com/Dokploy/dokploy) | Apache-2.0 with extra terms | latest release | Dashboard works. Deploying apps does not: VMs have no vxlan, so Swarm overlay networks fail. |
+| `dokploy` | [Dokploy/dokploy](https://github.com/Dokploy/dokploy) | Apache-2.0 with extra terms | latest release | Dashboard and Postgres as services. |
 
-An app's setup that is more than a plain install command lives in `apps/<id>/setup.sh` (named by `"setup"` in `app.json`). When a VM clones the app, homemade also downloads that script, pinned to the same commit of this repo, to `.homemade/setup.sh` in the clone, and the app's install list runs it as `bash .homemade/setup.sh`. That keeps the Install box readable. A script that creates a per-VM sign-in or pairing link writes it to `.homemade/sign-in-link.txt`; the app's web service points at it with `"signInFile"`, and the VM page shows it under the service.
+Every app is set up with plain commands in `app.json`, with no scripts of our own. What differs per VM comes from the platform: an `env_schema` entry with `"generate": true` is a random secret made once per VM (never part of a warm snapshot), one with `"default"` is a value such as `${HOMEMADE_URL_8765}`, and a service's `"signInUrl"` (for example `${HOMEMADE_URL_5733}/pair#token=${T3CODE_DEV_AUTH_TOKEN}`) is the sign-in link the VM page shows under it. An upstream setting that no env var or flag can change (nanobot's and Coolify's Vite live-reload host, Dokploy's dev origins) is one readable `sed` in `install:`.
 
 ## How they are made
 

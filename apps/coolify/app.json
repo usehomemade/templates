@@ -6,16 +6,47 @@
   "license": "Apache-2.0",
   "homepage": "https://coolify.io",
   "description": "Self-hostable PaaS to deploy apps, databases and services on your own servers.",
-  "setup": "setup.sh",
   "config": {
     "size": "medium",
+    "env_schema": [
+      {
+        "key": "COOLIFY_URL",
+        "default": "${HOMEMADE_URL_8000}"
+      },
+      {
+        "key": "COOLIFY_VITE_URL",
+        "default": "${HOMEMADE_URL_5173}"
+      },
+      {
+        "key": "VITE_PROTOCOL",
+        "default": "https"
+      },
+      {
+        "key": "PUSHER_PORT",
+        "default": "443"
+      },
+      {
+        "key": "PUSHER_SCHEME",
+        "default": "https"
+      }
+    ],
+    "warmup": [
+      "sudo mkdir -p /data/coolify/image-scans && sudo chown $USER: /data/coolify/image-scans",
+      "touch .env",
+      "docker compose -p coolify -f docker-compose.yml -f docker-compose.dev.yml build",
+      "docker compose -p coolify -f docker-compose.yml -f docker-compose.dev.yml pull --ignore-buildable"
+    ],
     "install": [
-      "bash .homemade/setup.sh"
+      "sudo mkdir -p /data/coolify/image-scans && sudo chown $USER: /data/coolify/image-scans",
+      "test -s .env || { cp .env.development.example .env && sed -i \"s|^APP_KEY=.*|APP_KEY=base64:$(openssl rand -base64 32)|\" .env; }",
+      "sed -i \"s|^APP_URL=.*|APP_URL=$COOLIFY_URL|\" .env",
+      "sed -i 's|clientPort: vitePort|clientPort: 443|; s|origin: `${viteProtocol}://${viteHost}:${vitePort}`|origin: `${viteProtocol}://${viteHost}`|' vite.config.js",
+      "docker compose -p coolify -f docker-compose.yml -f docker-compose.dev.yml build"
     ],
     "services": {
       "web": {
         "displayName": "Coolify",
-        "cmd": "exec docker compose -p coolify -f docker-compose.yml -f docker-compose.dev.yml up",
+        "cmd": "VITE_HOST=${COOLIFY_VITE_URL#https://} exec docker compose -p coolify -f docker-compose.yml -f docker-compose.dev.yml up",
         "port": 8000,
         "url": true,
         "share": "owner",

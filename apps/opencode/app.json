@@ -6,22 +6,19 @@
   "license": "MIT",
   "homepage": "https://opencode.ai",
   "description": "Open source AI coding agent with a web UI.",
-  "setup": "setup.sh",
   "config": {
     "size": "small",
+    "warmup": [
+      "bun install --frozen-lockfile"
+    ],
     "install": [
-      "bun install --frozen-lockfile",
-      "bash .homemade/setup.sh"
+      "bun install --frozen-lockfile"
     ],
     "services": {
-      "api": {
-        "displayName": "OpenCode server",
-        "cmd": "exec bun dev serve --port 4096 --hostname 127.0.0.1"
-      },
       "web": {
         "displayName": "OpenCode",
-        "cmd": "cd packages/app && exec bunx vite --config vite.homemade.config.ts --port 3000 --host 0.0.0.0",
-        "port": 3000,
+        "cmd": "exec bun dev serve --port 4096 --hostname 0.0.0.0",
+        "port": 4096,
         "url": true,
         "share": "owner",
         "healthcheck": {

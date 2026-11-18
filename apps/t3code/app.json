@@ -6,17 +6,24 @@
   "license": "MIT",
   "homepage": "https://github.com/pingdotgg/t3code",
   "description": "Minimal web GUI for coding agents (Codex, Claude and others).",
-  "setup": "setup.sh",
   "config": {
     "size": "small",
+    "env_schema": [
+      {
+        "key": "T3CODE_DEV_AUTH_TOKEN",
+        "generate": true
+      }
+    ],
+    "warmup": [
+      "pnpm install --frozen-lockfile"
+    ],
     "install": [
-      "pnpm i --frozen-lockfile",
-      "bash .homemade/setup.sh"
+      "pnpm install --frozen-lockfile"
     ],
     "services": {
       "server": {
         "displayName": "T3 server",
-        "cmd": "T3CODE_DEV_AUTH_TOKEN=$(cat ~/.t3-share/token) exec pnpm run dev:server --host 0.0.0.0",
+        "cmd": "exec pnpm run dev:server --host 0.0.0.0",
         "port": 13773
       },
       "web": {
@@ -28,7 +35,7 @@
         "healthcheck": {
           "path": "/"
         },
-        "signInFile": ".homemade/sign-in-link.txt"
+        "signInUrl": "${HOMEMADE_URL_5733}/pair#token=${T3CODE_DEV_AUTH_TOKEN}"
       }
     }
   }

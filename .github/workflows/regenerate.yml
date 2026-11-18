@@ -36,8 +36,6 @@ jobs:
           ids="${ONLY:-$(grep -v '^#' scripts/templates.txt)}"
           echo "ids=$(printf '%s\n' $ids | jq -R . | jq -sc .)" >>"$GITHUB_OUTPUT"
           echo "IDS=$(echo $ids)" >>"$GITHUB_ENV"
-      - name: Check app setup scripts parse
-        run: for f in apps/*/setup.sh; do bash -n "$f"; done
       - name: Regenerate
         env:
           CI: "1"

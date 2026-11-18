@@ -6,11 +6,15 @@
   "license": "AGPL-3.0-or-later",
   "homepage": "https://github.com/siteboon/claudecodeui",
   "description": "Web UI for Claude Code, Codex, Cursor and OpenCode CLIs: chat, file editor, terminal and git in the browser.",
-  "setup": "setup.sh",
   "config": {
     "size": "small",
+    "warmup": [
+      "npm ci --ignore-scripts && npm rebuild bcrypt better-sqlite3 esbuild node-pty sharp",
+      "test -x node_modules/@vscode/ripgrep/bin/rg || npm rebuild @vscode/ripgrep || { mkdir -p node_modules/@vscode/ripgrep/bin && ln -sf \"$(command -v rg)\" node_modules/@vscode/ripgrep/bin/rg; }"
+    ],
     "install": [
-      "bash .homemade/setup.sh"
+      "test -d node_modules || { npm ci --ignore-scripts && npm rebuild bcrypt better-sqlite3 esbuild node-pty sharp; }",
+      "test -x node_modules/@vscode/ripgrep/bin/rg || npm rebuild @vscode/ripgrep || { mkdir -p node_modules/@vscode/ripgrep/bin && ln -sf \"$(command -v rg)\" node_modules/@vscode/ripgrep/bin/rg; }"
     ],
     "services": {
       "api": {
@@ -19,7 +23,7 @@
       },
       "web": {
         "displayName": "CloudCLI",
-        "cmd": "HOST=0.0.0.0 SERVER_PORT=3001 exec npx vite --config vite.homemade.config.js",
+        "cmd": "__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.onhmmd.com,.onhomemade.com HOST=0.0.0.0 SERVER_PORT=3001 exec npx vite",
         "port": 5173,
         "url": true,
         "share": "owner",

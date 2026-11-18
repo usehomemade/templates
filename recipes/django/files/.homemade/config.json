@@ -1,5 +1,6 @@
 {
   "$schema": "https://homemade.dev/schemas/latest/config.json",
+  "warmup": ["uv sync --frozen"],
   "install": ["uv sync --frozen"],
   "services": {
     "web": { "cmd": "uv run manage.py runserver 0.0.0.0:${PORT:-8000}", "port": 8000, "url": true }

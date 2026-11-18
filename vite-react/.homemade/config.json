@@ -1,5 +1,6 @@
 {
   "$schema": "https://homemade.dev/schemas/latest/config.json",
+  "warmup": ["pnpm install --frozen-lockfile"],
   "install": ["pnpm install --frozen-lockfile"],
   "services": {
     "web": { "cmd": "pnpm dev --host 0.0.0.0 --port ${PORT:-5173}", "port": 5173, "url": true }

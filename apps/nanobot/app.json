@@ -6,24 +6,38 @@
   "license": "MIT",
   "homepage": "https://github.com/HKUDS/nanobot",
   "description": "Lightweight personal AI agent with a web UI workbench.",
-  "setup": "setup.sh",
   "config": {
+    "env_schema": [
+      {
+        "key": "NANOBOT_WEBUI_SECRET",
+        "generate": true
+      },
+      {
+        "key": "NANOBOT_WS_URL",
+        "default": "${HOMEMADE_URL_8765}"
+      }
+    ],
+    "warmup": [
+      "uv venv --allow-existing && uv pip install -e .",
+      "cd webui && bun install --frozen-lockfile"
+    ],
     "install": [
-      "uv venv && uv pip install -e .",
+      "uv venv --allow-existing && uv pip install -e .",
       "cd webui && bun install --frozen-lockfile",
-      "bash .homemade/setup.sh"
+      "sed -i '/hmr: {/,/},/ s|host: \"127.0.0.1\",|clientPort: 443, protocol: \"wss\",|' webui/vite.config.ts",
+      "mkdir -p ~/.nanobot && { cat ~/.nanobot/config.json 2>/dev/null || echo '{}'; } | jq '.channels.websocket += {enabled: true, host: \"127.0.0.1\", port: 8765, publicWsUrl: (env.NANOBOT_WS_URL | sub(\"^https\"; \"wss\")), tokenIssueSecret: env.NANOBOT_WEBUI_SECRET}' > ~/.nanobot/config.next && mv ~/.nanobot/config.next ~/.nanobot/config.json"
     ],
     "services": {
       "web": {
         "displayName": "WebUI",
-        "cmd": "exec .venv/bin/nanobot webui --dev --no-open --yes",
+        "cmd": "__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.onhmmd.com,.onhomemade.com exec .venv/bin/nanobot webui --dev --no-open --yes",
         "port": 5173,
         "url": true,
         "share": "owner",
         "healthcheck": {
           "path": "/"
         },
-        "signInFile": ".homemade/sign-in-link.txt"
+        "signInUrl": "${HOMEMADE_URL_5173}/#/?bootstrapSecret=${NANOBOT_WEBUI_SECRET}"
       },
       "ws": {
         "displayName": "Gateway WebSocket",
