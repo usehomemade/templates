@@ -40,7 +40,7 @@ Apps are not copied here. `apps/<id>/app.json` holds only our config and which u
 | `opencode` | [anomalyco/opencode](https://github.com/anomalyco/opencode) | MIT | latest release | The OpenCode server (from source) on 4096 serves the web app. |
 | `cloudcli` | [siteboon/claudecodeui](https://github.com/siteboon/claudecodeui) | AGPL-3.0-or-later | latest release | Web UI for Claude Code, Cursor CLI and Codex. |
 | `coolify` | [coollabsio/coolify](https://github.com/coollabsio/coolify) | Apache-2.0 | latest release | Medium VM, upstream dev compose. Sign in as `test@example.com` / `password`. |
-| `dokploy` | [Dokploy/dokploy](https://github.com/Dokploy/dokploy) | Apache-2.0 with extra terms | latest release | Dashboard and Postgres as services. |
+| `dokploy` | [Dokploy/dokploy](https://github.com/Dokploy/dokploy) | Apache-2.0 with extra terms | latest release | Dashboard and Postgres as services; install creates the Swarm overlay network and Traefik, and port 80 (Traefik) has its own VM URL to use as an app's domain. |
 
 Every app is set up with plain commands in `app.json`, with no scripts of our own. What differs per VM comes from the platform: an `env_schema` entry with `"generate": true` is a random secret made once per VM (never part of a warm snapshot), one with `"default"` is a value such as `${HOMEMADE_URL_8765}`, and a service's `"signInUrl"` (for example `${HOMEMADE_URL_5733}/pair#token=${T3CODE_DEV_AUTH_TOKEN}`) is the sign-in link the VM page shows under it. An upstream setting that no env var or flag can change (nanobot's and Coolify's Vite live-reload host, Dokploy's dev origins) is one readable `sed` in `install:`.
 
