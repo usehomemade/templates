@@ -5,6 +5,11 @@
     "docker pull ghcr.io/open-webui/open-webui:main",
     "docker run -d --name hm-ollama-warm -v hm-ollama:/root/.ollama ollama/ollama:latest && timeout 120 sh -c 'until docker exec hm-ollama-warm ollama list >/dev/null 2>&1; do sleep 1; done' && docker exec hm-ollama-warm ollama pull qwen2.5:0.5b; status=$?; docker rm -f hm-ollama-warm >/dev/null; exit $status"
   ],
+  "install": [
+    "timeout 120 sh -c 'until docker info >/dev/null 2>&1; do sleep 1; done'",
+    "docker pull -q ollama/ollama:latest",
+    "docker pull -q ghcr.io/open-webui/open-webui:main"
+  ],
   "services": {
     "ollama": {
       "displayName": "Ollama",
