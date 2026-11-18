@@ -57,7 +57,10 @@
       "vite": {
         "displayName": "Vite (assets, live reload)",
         "port": 5173,
-        "url": true
+        "url": true,
+        "healthcheck": {
+          "path": "/"
+        }
       }
     }
   }

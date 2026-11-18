@@ -13,17 +13,17 @@
       "test -x node_modules/@vscode/ripgrep/bin/rg || npm rebuild @vscode/ripgrep || { mkdir -p node_modules/@vscode/ripgrep/bin && ln -sf \"$(command -v rg)\" node_modules/@vscode/ripgrep/bin/rg; }"
     ],
     "install": [
-      "test -d node_modules || { npm ci --ignore-scripts && npm rebuild bcrypt better-sqlite3 esbuild node-pty sharp; }",
+      "[ node_modules/.package-lock.json -nt package-lock.json ] || { npm ci --ignore-scripts && npm rebuild bcrypt better-sqlite3 esbuild node-pty sharp; }",
       "test -x node_modules/@vscode/ripgrep/bin/rg || npm rebuild @vscode/ripgrep || { mkdir -p node_modules/@vscode/ripgrep/bin && ln -sf \"$(command -v rg)\" node_modules/@vscode/ripgrep/bin/rg; }"
     ],
     "services": {
       "api": {
         "displayName": "API",
-        "cmd": "HOST=0.0.0.0 SERVER_PORT=3001 exec npm run server:dev"
+        "cmd": "exec npm run server:dev"
       },
       "web": {
         "displayName": "CloudCLI",
-        "cmd": "HOST=0.0.0.0 SERVER_PORT=3001 exec npx vite",
+        "cmd": "exec npx vite",
         "port": 5173,
         "url": true,
         "share": "owner",
@@ -31,6 +31,16 @@
           "path": "/"
         }
       }
-    }
+    },
+    "env_schema": [
+      {
+        "key": "HOST",
+        "default": "0.0.0.0"
+      },
+      {
+        "key": "SERVER_PORT",
+        "default": "3001"
+      }
+    ]
   }
 }

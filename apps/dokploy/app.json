@@ -27,6 +27,7 @@
     ],
     "install": [
       "mise use node@24",
+      "command -v node-gyp >/dev/null || npm i -g node-gyp",
       "pnpm install --frozen-lockfile",
       "test -f apps/dokploy/.env || cp apps/dokploy/.env.example apps/dokploy/.env",
       "docker swarm init --advertise-addr \"$(hostname -I | cut -d' ' -f1)\" || true",
@@ -61,7 +62,10 @@
         "port": 80,
         "url": true,
         "share": "owner",
-        "publicHost": true
+        "publicHost": true,
+        "healthcheck": {
+          "path": "/"
+        }
       }
     }
   }
