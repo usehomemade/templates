@@ -9,7 +9,7 @@
   "config": {
     "size": "small",
     "install": [
-      "mise use node@24 && npm i -g node-gyp && pnpm install --frozen-lockfile",
+      "mise use node@24 && npm i -g node-gyp && for i in 1 2 3 4 5; do node-gyp install && break; sleep 5; done && (pnpm install --frozen-lockfile || pnpm install --frozen-lockfile)",
       "set -a; . /etc/homemade/env; set +a; [ -f apps/dokploy/.env ] || { cp apps/dokploy/.env.example apps/dokploy/.env; printf 'BETTER_AUTH_URL=%s\\nBETTER_AUTH_SECRET=%s\\n' \"${HOMEMADE_URL/-$HOMEMADE_VM_NAME-/-$HOMEMADE_VM_NAME-3000-}\" \"$(openssl rand -hex 32)\" >> apps/dokploy/.env; }; grep -q allowedDevOrigins apps/dokploy/next.config.mjs || sed -i 's|reactStrictMode: true,|reactStrictMode: true,\\n\\tallowedDevOrigins: [\"*.onhmmd.com\", \"*.onhomemade.com\"],|' apps/dokploy/next.config.mjs",
       "docker swarm init --advertise-addr \"$(hostname -I | cut -d' ' -f1)\" >/dev/null 2>&1 || true; docker start dokploy-postgres >/dev/null 2>&1 || docker run -d --restart unless-stopped --name dokploy-postgres -p 5432:5432 -e POSTGRES_USER=dokploy -e POSTGRES_DB=dokploy -e POSTGRES_PASSWORD=amukds4wi9001583845717ad2 -v dokploy-postgres:/var/lib/postgresql/data postgres:16 >/dev/null; until docker exec dokploy-postgres pg_isready -U dokploy -h 127.0.0.1 >/dev/null 2>&1; do sleep 1; done; sleep 3",
       "pnpm --filter=dokploy run migration:run && pnpm run server:script"

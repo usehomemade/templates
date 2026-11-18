@@ -3,3 +3,5 @@ opencode
 cloudcli
 coolify
 dokploy
+openclaw
+nanobot

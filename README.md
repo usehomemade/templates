@@ -30,7 +30,17 @@ Every dev server listens on `0.0.0.0` and `$PORT` and accepts any host name, so 
 
 Each app keeps its own license; homemade is not affiliated with any of them. See `apps/<id>/app.json` for the exact setup.
 
-APPS_TABLE
+Apps are not copied here. `apps/<id>/app.json` holds only our setup and which upstream ref to track. When a VM is created, it clones the app's latest release tag (or default branch) straight from GitHub, installs it and runs it in dev mode.
+
+| App | Upstream | License | Tracks | Notes |
+| --- | --- | --- | --- | --- |
+| `openclaw` | [openclaw/openclaw](https://github.com/openclaw/openclaw) | MIT | latest release | Medium VM. First boot builds the gateway (about 9 min). Control UI runs on Vite. No login; the URL is owner-only. |
+| `nanobot` | [HKUDS/nanobot](https://github.com/HKUDS/nanobot) | MIT | latest release | WebUI password and sign-in link in `~/nanobot-password.txt`. |
+| `t3code` | [pingdotgg/t3code](https://github.com/pingdotgg/t3code) | MIT | latest release | Pairing link in `~/t3-pairing-link.txt`. |
+| `opencode` | [anomalyco/opencode](https://github.com/anomalyco/opencode) | MIT | latest release | Web app on Vite, API on 4096. |
+| `cloudcli` | [siteboon/claudecodeui](https://github.com/siteboon/claudecodeui) | AGPL-3.0-or-later | latest release | Web UI for Claude Code, Cursor CLI and Codex. |
+| `coolify` | [coollabsio/coolify](https://github.com/coollabsio/coolify) | Apache-2.0 | latest release | Medium VM, upstream dev compose. Sign in as `test@example.com` / `password`. |
+| `dokploy` | [Dokploy/dokploy](https://github.com/Dokploy/dokploy) | Apache-2.0 with extra terms | latest release | Dashboard works. Deploying apps does not: VMs have no vxlan, so Swarm overlay networks fail. |
 
 ## How they are made
 

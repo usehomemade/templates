@@ -1,0 +1,35 @@
+{
+  "name": "nanobot",
+  "upstream": "HKUDS/nanobot",
+  "track": "release",
+  "branch": "main",
+  "license": "MIT",
+  "homepage": "https://github.com/HKUDS/nanobot",
+  "description": "Lightweight personal AI agent with a web UI workbench.",
+  "config": {
+    "install": [
+      "uv venv && uv pip install -e .",
+      "cd webui && bun install --frozen-lockfile",
+      "perl -0pi -e 's/strictPort: true,/strictPort: true,\\n      allowedHosts: true,/; s/hmr: \\{\\n        host: \"127.0.0.1\",/hmr: {\\n        clientPort: 443,\\n        protocol: \"wss\",/' webui/vite.config.ts",
+      "set -a; . /etc/homemade/env; set +a; host=${HOMEMADE_URL#https://}; ws=\"wss://${host/-$HOMEMADE_VM_NAME-/-$HOMEMADE_VM_NAME-8765-}\"; s=$(openssl rand -hex 16); mkdir -p ~/.nanobot; jq -n --arg s \"$s\" --arg w \"$ws\" '{channels:{websocket:{enabled:true,host:\"127.0.0.1\",port:8765,publicWsUrl:$w,tokenIssueSecret:$s}}}' > ~/.nanobot/config.json; chmod 600 ~/.nanobot/config.json; echo \"WebUI password: $s\" > ~/nanobot-password.txt; echo \"Sign-in link: https://${host/-$HOMEMADE_VM_NAME-/-$HOMEMADE_VM_NAME-5173-}/#/?bootstrapSecret=$s\" >> ~/nanobot-password.txt; chmod 600 ~/nanobot-password.txt"
+    ],
+    "services": {
+      "web": {
+        "displayName": "WebUI",
+        "cmd": "exec .venv/bin/nanobot webui --dev --no-open --yes",
+        "port": 5173,
+        "url": true,
+        "share": "owner",
+        "healthcheck": {
+          "path": "/"
+        }
+      },
+      "ws": {
+        "displayName": "Gateway WebSocket",
+        "port": 8765,
+        "url": true,
+        "share": "owner"
+      }
+    }
+  }
+}

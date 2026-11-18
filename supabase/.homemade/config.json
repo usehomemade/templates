@@ -21,7 +21,7 @@
     },
     "web": {
       "displayName": "Web",
-      "cmd": "until out=$(pnpm exec supabase status -o env 2>/dev/null) && printf '%s\\n' \"$out\" | grep -q '^API_URL=\"http'; do sleep 2; done; eval \"$(printf '%s\\n' \"$out\" | grep -E '^[A-Z_]+=')\"; SUPABASE_URL=\"$API_URL\" SUPABASE_ANON_KEY=\"${PUBLISHABLE_KEY:-$ANON_KEY}\" exec pnpm dev --hostname 0.0.0.0 --port ${PORT:-3000}",
+      "cmd": "until out=$(pnpm exec supabase status -o env 2>/dev/null) && printf '%s\\n' \"$out\" | grep -q '^API_URL=\"http'; do sleep 2; done; v() { printf '%s\\n' \"$out\" | sed -n \"s/^$1=\\\"\\\\(.*\\\\)\\\"$/\\\\1/p\" | head -n1; }; SUPABASE_URL=$(v API_URL); SUPABASE_ANON_KEY=$(v PUBLISHABLE_KEY); [ -n \"$SUPABASE_ANON_KEY\" ] || SUPABASE_ANON_KEY=$(v ANON_KEY); export SUPABASE_URL SUPABASE_ANON_KEY; exec pnpm dev --hostname 0.0.0.0 --port ${PORT:-3000}",
       "port": 3000,
       "url": true,
       "healthcheck": {
