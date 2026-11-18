@@ -20,7 +20,7 @@ config :app, AppWeb.Endpoint,
     layout: false
   ],
   pubsub_server: App.PubSub,
-  live_view: [signing_salt: "ExOxi9ht"]
+  live_view: [signing_salt: "b6sUfCWC"]
 
 # Configure LiveView
 config :phoenix_live_view,

@@ -17,7 +17,7 @@ config :app, App.Repo,
 # you can enable the server option below.
 config :app, AppWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "QYHLq+hcx4EuvBli+c2XAyAHR2xy6zh8v1ohud2+iF8aKDhADxQQCoj8wceLXCcz",
+  secret_key_base: "svCpP8DZzCFhQs0e4pmDQIZPVGR5tTFVyYuje9XpUzCRBTBCKNFfy/VhMP+tFQ2Y",
   server: false
 
 # Print only warnings and errors during test
