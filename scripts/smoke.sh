@@ -35,15 +35,17 @@ run_list warmup
 run_list install
 
 if command -v setsid >/dev/null; then spawn=(setsid bash); else spawn=(bash); fi
-while IFS=$'\t' read -r name port cmd; do
+# Unit separator, not tab: read collapses empty tab fields, so a service with no port lost its cmd.
+while IFS=$'\x1f' read -r name port cmd; do
   echo "smoke $id: start $name on ${port:-no port}"
   if [ -n "$port" ]; then
-    PORT="$port" "${spawn[@]}" -c "$cmd" >"$logs/$name.log" 2>&1 &
+    # The VM types "PORT=<port> <cmd>" into a shell, so run it the same way.
+    "${spawn[@]}" -c "PORT=$port $cmd" >"$logs/$name.log" 2>&1 &
   else
     "${spawn[@]}" -c "$cmd" >"$logs/$name.log" 2>&1 &
   fi
   pids+=($!)
-done < <(jq -r '.services | to_entries[] | select(.value.cmd != null) | [.key, (.value.port // "" | tostring), .value.cmd] | @tsv' "$config")
+done < <(jq -r '.services | to_entries[] | select(.value.cmd != null) | [.key, (.value.port // "" | tostring), .value.cmd] | join("\u001f")' "$config")
 
 deadline=$((SECONDS + timeout_s))
 for port in $(jq -r '.services[] | select(.url == true) | .port' "$config"); do
