@@ -17,7 +17,7 @@
     "services": {
       "web": {
         "displayName": "OpenCode",
-        "cmd": "exec bun dev serve --port 4096 --hostname 0.0.0.0",
+        "cmd": "cd packages/opencode && exec bun --watch --no-clear-screen --watch-kill-signal SIGKILL src/index.ts serve --port \"$PORT\" --hostname 0.0.0.0",
         "port": 4096,
         "url": true,
         "share": "owner",

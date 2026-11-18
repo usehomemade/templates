@@ -14,6 +14,15 @@
         "path": "/api/version"
       }
     },
+    "model": {
+      "displayName": "Model download",
+      "cmd": "docker exec hm-ollama ollama pull qwen2.5:0.5b && exec sleep infinity",
+      "depends_on": {
+        "ollama": {
+          "condition": "healthy"
+        }
+      }
+    },
     "webui": {
       "displayName": "Open WebUI",
       "cmd": "docker start -a hm-webui || docker run --name hm-webui --network host -e PORT=${PORT:-8080} -e OLLAMA_BASE_URL -e WEBUI_AUTH=False -v hm-webui:/app/backend/data ghcr.io/open-webui/open-webui:main",
@@ -29,9 +38,6 @@
       }
     }
   },
-  "install": [
-    "docker run -d --name hm-ollama-warm -v hm-ollama:/root/.ollama ollama/ollama:latest && timeout 120 sh -c 'until docker exec hm-ollama-warm ollama list >/dev/null 2>&1; do sleep 1; done' && docker exec hm-ollama-warm ollama pull qwen2.5:0.5b; status=$?; docker rm -f hm-ollama-warm >/dev/null; exit $status"
-  ],
   "env_schema": [
     {
       "key": "OLLAMA_BASE_URL",

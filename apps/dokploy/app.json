@@ -23,7 +23,8 @@
       "npm i -g node-gyp",
       "node-gyp install || node-gyp install",
       "pnpm install --frozen-lockfile",
-      "docker pull postgres:16"
+      "docker pull postgres:16",
+      "docker pull traefik:v3.7.19"
     ],
     "install": [
       "mise use node@24",
