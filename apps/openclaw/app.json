@@ -6,12 +6,11 @@
   "license": "MIT",
   "homepage": "https://openclaw.ai",
   "description": "Personal AI assistant gateway with a web Control UI.",
+  "setup": "setup.sh",
   "config": {
     "size": "medium",
     "install": [
-      "pnpm install --frozen-lockfile",
-      "pnpm build",
-      "node openclaw.mjs setup --baseline && node openclaw.mjs config set gateway.auth.mode none && node openclaw.mjs config set gateway.controlUi.allowedOrigins '[\"*\"]' --strict-json && node openclaw.mjs config set gateway.trustedProxies '[\"127.0.0.1\",\"::1\",\"10.0.0.0/8\",\"172.16.0.0/12\"]' --strict-json"
+      "bash .homemade/setup.sh"
     ],
     "services": {
       "gateway": {

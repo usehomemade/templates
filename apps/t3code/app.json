@@ -6,11 +6,12 @@
   "license": "MIT",
   "homepage": "https://github.com/pingdotgg/t3code",
   "description": "Minimal web GUI for coding agents (Codex, Claude and others).",
+  "setup": "setup.sh",
   "config": {
     "size": "small",
     "install": [
       "pnpm i --frozen-lockfile",
-      "mkdir -p $HOME/.t3-share && [ -s $HOME/.t3-share/token ] || head -c 24 /dev/urandom | od -An -tx1 | tr -d ' \\n' > $HOME/.t3-share/token"
+      "bash .homemade/setup.sh"
     ],
     "services": {
       "server": {
@@ -20,13 +21,14 @@
       },
       "web": {
         "displayName": "T3 Code",
-        "cmd": "U=${HOMEMADE_URL/-$HOMEMADE_VM_NAME-/-$HOMEMADE_VM_NAME-5733-}; echo \"T3 Code pairing link: $U/pair#token=$(cat ~/.t3-share/token)\" | tee ~/t3-pairing-link.txt; cd apps/web && T3CODE_PORT=13773 T3CODE_SINGLE_ORIGIN_DEV=1 T3CODE_DEV_ALLOWED_HOSTS=.onhmmd.com,.onhomemade.com exec pnpm exec vp dev --host 0.0.0.0",
+        "cmd": "cd apps/web && T3CODE_PORT=13773 T3CODE_SINGLE_ORIGIN_DEV=1 T3CODE_DEV_ALLOWED_HOSTS=.onhmmd.com,.onhomemade.com exec pnpm exec vp dev --host 0.0.0.0",
         "port": 5733,
         "url": true,
         "share": "owner",
         "healthcheck": {
           "path": "/"
-        }
+        },
+        "signInFile": ".homemade/sign-in-link.txt"
       }
     }
   }

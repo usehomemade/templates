@@ -6,12 +6,11 @@
   "license": "AGPL-3.0-or-later",
   "homepage": "https://github.com/siteboon/claudecodeui",
   "description": "Web UI for Claude Code, Codex, Cursor and OpenCode CLIs: chat, file editor, terminal and git in the browser.",
+  "setup": "setup.sh",
   "config": {
     "size": "small",
     "install": [
-      "npm ci --ignore-scripts && npm rebuild bcrypt better-sqlite3 esbuild node-pty sharp",
-      "(npm rebuild @vscode/ripgrep >/dev/null 2>&1 && test -x node_modules/@vscode/ripgrep/bin/rg) || (mkdir -p node_modules/@vscode/ripgrep/bin && ln -sf \"$(command -v rg)\" node_modules/@vscode/ripgrep/bin/rg)",
-      "printf '%s\\n' 'import { defineConfig, mergeConfig } from \"vite\"' 'import base from \"./vite.config.js\"' 'export default defineConfig(async (env) => mergeConfig(await (typeof base === \"function\" ? base(env) : base), { server: { allowedHosts: true } }))' > vite.homemade.config.js"
+      "bash .homemade/setup.sh"
     ],
     "services": {
       "api": {

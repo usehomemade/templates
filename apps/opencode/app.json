@@ -6,11 +6,12 @@
   "license": "MIT",
   "homepage": "https://opencode.ai",
   "description": "Open source AI coding agent with a web UI.",
+  "setup": "setup.sh",
   "config": {
     "size": "small",
     "install": [
       "bun install --frozen-lockfile",
-      "cat > packages/app/vite.homemade.config.ts <<'XEOF'\nimport { mergeConfig } from \"vite\"\nimport base from \"./vite.config\"\n\nconst api = \"^/(agent|api|auth|command|config|doc|event|experimental|file|find|formatter|global|instance|log|lsp|mcp|path|permission|project|provider|pty|question|session|skill|sync|tui|vcs)(/|$)\"\n\nexport default mergeConfig(base, {\n  server: {\n    proxy: {\n      [api]: {\n        target: \"http://127.0.0.1:4096\",\n        ws: true,\n        changeOrigin: true,\n        bypass: (req: any) => (req.headers.accept?.includes(\"text/html\") ? req.url : undefined),\n      },\n    },\n  },\n  define: { \"import.meta.env.DEV\": \"false\" },\n})\nXEOF"
+      "bash .homemade/setup.sh"
     ],
     "services": {
       "api": {

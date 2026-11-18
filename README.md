@@ -35,12 +35,14 @@ Apps are not copied here. `apps/<id>/app.json` holds only our setup and which up
 | App | Upstream | License | Tracks | Notes |
 | --- | --- | --- | --- | --- |
 | `openclaw` | [openclaw/openclaw](https://github.com/openclaw/openclaw) | MIT | latest release | Medium VM. First boot builds the gateway (about 9 min). Control UI runs on Vite. No login; the URL is owner-only. |
-| `nanobot` | [HKUDS/nanobot](https://github.com/HKUDS/nanobot) | MIT | latest release | WebUI password and sign-in link in `~/nanobot-password.txt`. |
-| `t3code` | [pingdotgg/t3code](https://github.com/pingdotgg/t3code) | MIT | latest release | Pairing link in `~/t3-pairing-link.txt`. |
+| `nanobot` | [HKUDS/nanobot](https://github.com/HKUDS/nanobot) | MIT | latest release | The VM page shows the sign-in link (`.homemade/sign-in-link.txt`). |
+| `t3code` | [pingdotgg/t3code](https://github.com/pingdotgg/t3code) | MIT | latest release | The VM page shows the pairing link (`.homemade/sign-in-link.txt`). |
 | `opencode` | [anomalyco/opencode](https://github.com/anomalyco/opencode) | MIT | latest release | Web app on Vite, API on 4096. |
 | `cloudcli` | [siteboon/claudecodeui](https://github.com/siteboon/claudecodeui) | AGPL-3.0-or-later | latest release | Web UI for Claude Code, Cursor CLI and Codex. |
 | `coolify` | [coollabsio/coolify](https://github.com/coollabsio/coolify) | Apache-2.0 | latest release | Medium VM, upstream dev compose. Sign in as `test@example.com` / `password`. |
 | `dokploy` | [Dokploy/dokploy](https://github.com/Dokploy/dokploy) | Apache-2.0 with extra terms | latest release | Dashboard works. Deploying apps does not: VMs have no vxlan, so Swarm overlay networks fail. |
+
+An app's setup that is more than a plain install command lives in `apps/<id>/setup.sh` (named by `"setup"` in `app.json`). When a VM clones the app, homemade also downloads that script, pinned to the same commit of this repo, to `.homemade/setup.sh` in the clone, and the app's install list runs it as `bash .homemade/setup.sh`. That keeps the Install box readable. A script that creates a per-VM sign-in or pairing link writes it to `.homemade/sign-in-link.txt`; the app's web service points at it with `"signInFile"`, and the VM page shows it under the service.
 
 ## How they are made
 
